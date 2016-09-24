@@ -1,3 +1,9 @@
+/*
+Author : Ruan Kotovich
+Year : 2016
+Licence : MIT
+*/
+
 #ifndef _SOCIAL_NETWORK_CIRCULARQUEUE_
 #define _SOCIAL_NETWORK_CIRCULARQUEUE_
 

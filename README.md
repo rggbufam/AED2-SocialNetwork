@@ -1,6 +1,6 @@
 # AED2 - SocialNetwork
 
-### Content
+### [Content]
 ###### * Circular Queue to store all found vertexes
 ###### * Graph implementation using adjacency matrix
 ###### * BreadthFirst Search implementation
@@ -8,10 +8,10 @@
 ###### * All-to-all pathfinding
 
 
-### Files
+### [Files]
 
 ##### 1. main.c
-###### The *main.c* file contains an execution of the breadth first search from each vertex for each vertex (All-to-all pathfinding), the entrance is constructed bellow :
+###### The *main.c* file contains an execution of the breadth first search from each vertex to each vertex (All-to-all pathfinding), the entrance is constructed bellow :
 
 ###### *Entrance :  argv[] = {vertexes_amount:int,is_ponderable:char,edges_file:char[]}*
 
@@ -22,4 +22,8 @@
 ###### The *circularQueue.c* file contains an implementation of a circular queue using arrays applying properties of circularity within queues. This struct contains an offer method, a peek method, a pop method, a print method and a *isEmpty* method.
 
 ##### 3. darray.c
-###### The *darray.c* file contains an implementation of a Dynamic Array structure, receive a number in any position, recover a number from any position, it's dangerous for careless people because it does not return an error, just try to acess a position or expand the array for your use of that position.
+###### The *darray.c* file contains an implementation of a Dynamic Array structure, it receives a number in any position, it recovers a number from any position, it's dangerous for careless people because it does not return an error, it just tries to acess a position or expand the array for your use of that position.
+
+### [Contributors]
+
+**String** ***contributors[]*** = {["Ivo Machado"](https://github.com/ivomachado) : "Algorithm implementation ideas", "My sadness" : "implementations", "My sorrow" : "Algorithm ideas", "My juicy orange juice" : "everything else"}

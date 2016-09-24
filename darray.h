@@ -1,3 +1,9 @@
+/*
+Author : Ruan Kotovich
+Year : 2016
+Licence : MIT
+*/
+
 #ifndef _XYAH_DARRAY_H_
 #define _XYAH_DARRAY_H_
 

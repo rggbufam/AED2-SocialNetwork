@@ -1,3 +1,9 @@
+/*
+Author : Ruan Kotovich
+Year : 2016
+Licence : MIT
+*/
+
 #include "graph.h"
 #include "stdio.h"
 #include "stdlib.h"

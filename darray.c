@@ -1,3 +1,9 @@
+/*
+Author : Ruan Kotovich
+Year : 2016
+Licence : MIT
+*/
+
 #include "darray.h"
 #include "stdlib.h"
 #include "math.h"
