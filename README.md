@@ -4,17 +4,22 @@
 ###### * Circular Queue to store all found vertexes
 ###### * Graph implementation using adjacency matrix
 ###### * BreadthFirst Search implementation
+###### * Brand BreadthFirstSearch mitigation for low memory
+###### * All-to-all pathfinding
 
 
 ### Files
 
 ##### 1. main.c
-###### The *main.c* file contain a execution of the breadth first search, the entrance is constructed bellow :
+###### The *main.c* file contains an execution of the breadth first search from each vertex for each vertex (All-to-all pathfinding), the entrance is constructed bellow :
 
-###### *Entrance :  argv[] = {vertexes_amount:int,is_ponderable:char,edges_file:char[],vertex_from:int,vertex_to:int}*
+###### *Entrance :  argv[] = {vertexes_amount:int,is_ponderable:char,edges_file:char[]}*
 
 ##### 2. graph.c
-###### The *graph.c* file contain a implementation of a graph using adjacency matrix. The struct contains an offer edge method, a remove edge method, a recover edge method, a print path method (for print the path array got by breadthfirst search) and a print adjacency matrix method.
+###### The *graph.c* file contains an implementation of a graph using adjacency matrix. The struct contains an offer edge method, a remove edge method, a recover edge method, a print path method (for print the path array got by breadthfirst search) and a print adjacency matrix method.
 
 ##### 3. circularQueue.c
-###### The *circularQueue.c* file contain a implementation of a circular queue using arrays applying properties of circularity within queues. This struct contains an offer method, a peek method, a pop method, a print method and a *isEmpty* method.
+###### The *circularQueue.c* file contains an implementation of a circular queue using arrays applying properties of circularity within queues. This struct contains an offer method, a peek method, a pop method, a print method and a *isEmpty* method.
+
+##### 3. darray.c
+###### The *darray.c* file contains an implementation of a Dynamic Array structure, receive a number in any position, recover a number from any position, it's dangerous for careless people because it does not return an error, just try to acess a position or expand the array for your use of that position.
