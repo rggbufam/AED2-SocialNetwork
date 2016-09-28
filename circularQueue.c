@@ -31,7 +31,7 @@ static void af_resizeQueue(TQueue *queue){
   int newSize = queueData->size*2;
   int oldSize = queueData->size;
   int *oldArray = queueData->array;
-  int *newArray = calloc(newSize,sizeof(int));
+  int *newArray = malloc(sizeof(int)*newSize);
   int i,k;
 
   if(queueData->first > queueData->last){
@@ -117,11 +117,11 @@ static short f_empty(TQueue *q){
   return ((TQueueData*)q->data)->itemCount == 0;
 }
 
-TQueue *new_Queue(){
+TQueue *new_Queue(int start){
   TQueue* queueP = (TQueue*)malloc(sizeof(TQueue));
   TQueueData *queueD =(TQueueData*)malloc(sizeof(TQueueData));
   queueP->data = queueD;
-  queueD->array = calloc(10,sizeof(void*));
+  queueD->array = malloc(sizeof(void*)*start);
   queueD->first = queueD->last = -1;
   queueD->itemCount = 0;
   queueD->size=10;

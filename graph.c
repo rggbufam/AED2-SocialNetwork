@@ -95,9 +95,9 @@ static int* af_dijkstra(TGraph* graph, int *magnitude, char *visiteds,int *path,
 static int *f_dijkstra(TGraph *graph, int start, int end){
 
   TGraphData* data = graph->data;
-  char *visiteds = calloc(data->matrixLength,sizeof(char));
-  int *magnitude = calloc(data->matrixLength,sizeof(int));
-  int *path = calloc(data->matrixLength,sizeof(int));
+  char *visiteds = malloc(data->matrixLength*sizeof(char));
+  int *magnitude = malloc(data->matrixLength*sizeof(int));
+  int *path = malloc(data->matrixLength*sizeof(int));
 
   af_dijkstra(graph, magnitude,visiteds, path, start, end);
 
@@ -113,8 +113,8 @@ static int* af_breadthfirstsearch(TGraph* graph, TQueue *pathQueue,char *visited
 
   for(int i=0;i<data->matrixLength;i++){
     visiteds[i] = 0;
-    //path[i] = -1;
   }
+
   path[start] = path[end] = -1;
 
   visiteds[start] = 1;
@@ -129,8 +129,7 @@ static int* af_breadthfirstsearch(TGraph* graph, TQueue *pathQueue,char *visited
 
     }else{
       for(int i=0;i<data->matrixLength;i++){
-        if(f_recoverEdge(graph, current, i)? !visiteds[i] : 0){
-          //printf("\n[%d]->[%d]",i,current);
+        if(data->matrix[data->matrixLength * current + i]? !visiteds[i] : 0){
           pathQueue->offerNumber(pathQueue,i);
           visiteds[i] = 1;
           path[i] = current;
@@ -144,11 +143,11 @@ static int* af_breadthfirstsearch(TGraph* graph, TQueue *pathQueue,char *visited
 
 static int *f_breadthfirstsearch(TGraph *graph, int start, int end){
   TGraphData* data = graph->data;
-  char *visiteds = calloc(data->matrixLength,sizeof(char));
-  int *path = calloc(data->matrixLength,sizeof(int));
+  char *visiteds = malloc(data->matrixLength*sizeof(char));
+  int *path = malloc(data->matrixLength*sizeof(int));
   int *field;
 
-  field = af_breadthfirstsearch(graph, new_Queue(),visiteds, path, start, end);
+  field = af_breadthfirstsearch(graph, new_Queue(10),visiteds, path, start, end);
 
   free(visiteds);
 
@@ -157,9 +156,9 @@ static int *f_breadthfirstsearch(TGraph *graph, int start, int end){
 
 static int* f_minimalChain(TGraph *graph){
   TGraphData *data = graph->data;
-  TQueue *queue = new_Queue();
-  char *visiteds = calloc(data->matrixLength,sizeof(char));
-  int *path = calloc(data->matrixLength,sizeof(int));
+  TQueue *queue = new_Queue(100);
+  char *visiteds = malloc(data->matrixLength*sizeof(char));
+  int *path = malloc(data->matrixLength*sizeof(int));
   int *edgeCount = calloc(data->matrixLength*data->matrixLength,sizeof(int));
   int *gotPath;
   int currentVertex, currentPath;

@@ -26,6 +26,6 @@ typedef struct typeQueue{
   FEmpty empty;
 }TQueue;
 
-TQueue *new_Queue();
+TQueue *new_Queue(int);
 
 #endif ///_SOCIAL_NETWORK_CIRCULARQUEUE_
