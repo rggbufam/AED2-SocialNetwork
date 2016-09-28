@@ -14,6 +14,7 @@ typedef int(*FPeekNumber)(TQueue*);
 typedef int(*FPopNumber)(TQueue*);
 typedef void (*FPrintQueue)(TQueue*);
 typedef short(*FEmpty)(TQueue*);
+typedef void (*FClear)(TQueue*);
 
 typedef struct typeQueue{
   void* data;
@@ -21,6 +22,7 @@ typedef struct typeQueue{
   FPeekNumber peekNumber;
   FPopNumber popNumber;
   FPrintQueue printQueue;
+  FClear clear;
   FEmpty empty;
 }TQueue;
 

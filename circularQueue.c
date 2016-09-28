@@ -13,20 +13,8 @@ typedef struct{
   int last;
   int first;
   int size;
+  int itemCount;
 }TQueueData;
-
-static int af_getBreadth(TQueue* queue){
-  TQueueData *data = queue->data;
-  if(data->first <= data->last){
-    if(data->first + data->last >= 0){
-      return (data->last - data->first)+1;
-    }else{
-      return 0;
-    }
-  }else{
-    return (data->size-(data->first - data->last))+1;
-  }
-}
 
 static void f_printQueue(TQueue *queue){
   TQueueData *queueData = queue->data;
@@ -78,7 +66,7 @@ static void f_offerNumber(TQueue *queue,int num){
   TQueueData *data = (TQueueData*) queue->data;
   int newLast;
 
-  if(data->size <= af_getBreadth(queue)){
+  if(data->size <= data->itemCount){
     af_resizeQueue(queue);
   }
 
@@ -94,6 +82,7 @@ static void f_offerNumber(TQueue *queue,int num){
     data->array[++data->last] = num;
     data->first = data->last;
   }
+  data->itemCount++;
 }
 
 static int f_peekNumber(TQueue* queue){
@@ -105,9 +94,8 @@ static int f_popNumber(TQueue *queue){
   TQueueData *data = queue->data;
   int newFirst;
   int retorno;
-  int breadth = af_getBreadth(queue);
 
-  if(breadth==1){
+  if(data->itemCount==1){
     retorno = data->array[data->first];
     data->first = data->last = -1;
   }else{
@@ -115,11 +103,18 @@ static int f_popNumber(TQueue *queue){
     newFirst = (data->first+1) % data->size;
     data->first = newFirst;
   }
+  data->itemCount--;
   return retorno;
 }
 
+static void f_clear(TQueue* queue){
+  TQueueData *data = queue->data;
+  data->first = data->last = -1;
+  data->itemCount=0;
+}
+
 static short f_empty(TQueue *q){
-  return af_getBreadth(q)<=0;
+  return ((TQueueData*)q->data)->itemCount == 0;
 }
 
 TQueue *new_Queue(){
@@ -128,11 +123,13 @@ TQueue *new_Queue(){
   queueP->data = queueD;
   queueD->array = calloc(10,sizeof(void*));
   queueD->first = queueD->last = -1;
+  queueD->itemCount = 0;
   queueD->size=10;
   queueP->offerNumber = f_offerNumber;
   queueP->popNumber = f_popNumber;
   queueP->peekNumber = f_peekNumber;
   queueP->printQueue = f_printQueue;
   queueP->empty = f_empty;
+  queueP->clear = f_clear;
   return queueP;
 }
