@@ -5,7 +5,6 @@ Licence : MIT
 */
 
 #include "graph.h"
-#include "circularQueue.h"
 #include "stdlib.h"
 #include "stdio.h"
 #include "limits.h"
@@ -22,7 +21,7 @@ static void f_offerEdge(TGraph* graph,int vertex1, int vertex2, int value){
 
 static void f_removeEdge(TGraph* graph, int vertex1, int vertex2){
   TGraphData *data = (TGraphData*) graph->data;
-  data->matrix[data->matrixLength * vertex2 + vertex1] = 0;
+  data->matrix[data->matrixLength * vertex1 + vertex2] = data->matrix[data->matrixLength * vertex2 + vertex1] = 0;
 }
 
 static int f_recoverEdge(TGraph* graph, int vertex1, int vertex2){
@@ -37,6 +36,17 @@ static void f_printMatrix(TGraph* graph){
       printf("[%d]",f_recoverEdge(graph, i ,j));
     }
     printf("\n");
+  }
+}
+
+static void f_printAdjacencyMatrix(TGraph* graph){
+  TGraphData *data = graph->data;
+  for(int i=0;i<data->matrixLength;i++){
+    for(int j=i+1;j<data->matrixLength;j++){
+      if(data->matrix[data->matrixLength * i + j]){
+        printf("%d %d\n",i,j);
+      }
+    }
   }
 }
 
@@ -134,7 +144,6 @@ static int* af_breadthfirstsearch(TGraph* graph, TQueue *pathQueue,char *visited
           visiteds[i] = 1;
           path[i] = current;
         }
-
       }
     }
   }
@@ -154,12 +163,8 @@ static int *f_breadthfirstsearch(TGraph *graph, int start, int end){
   return field;
 }
 
-static int* f_minimalChain(TGraph *graph){
+static int* f_minimalChain(TGraph *graph,TQueue *queue,int* edgeCount,int* path, char* visiteds){
   TGraphData *data = graph->data;
-  TQueue *queue = new_Queue(100);
-  char *visiteds = malloc(data->matrixLength*sizeof(char));
-  int *path = malloc(data->matrixLength*sizeof(int));
-  int *edgeCount = calloc(data->matrixLength*data->matrixLength,sizeof(int));
   int *gotPath;
   int currentVertex, currentPath;
 
@@ -168,22 +173,70 @@ static int* f_minimalChain(TGraph *graph){
       gotPath = af_breadthfirstsearch(graph,queue,visiteds,path,i,j);
       queue->clear(queue);
       if(gotPath){
-        printf("\n Minimal path from %d to %d : ",i,j);
+        //printf("\n Minimal path from %d to %d : ",i,j);
         currentVertex = j;
         while(currentVertex != i){
           currentPath =  gotPath[currentVertex];
           edgeCount[data->matrixLength*currentVertex + currentPath]++;
-          printf("[%d]",currentVertex);
+          //printf("[%d]",currentVertex);
           currentVertex = currentPath;
         }
-        printf("[%d]",currentVertex);
+        //printf("[%d]",currentVertex);
       }
     }
   }
-
   return edgeCount;
 }
 
+static void f_minimalCandle(TGraph *graph, TQueue *queue, int *path,char *visiteds,int variant){
+  TGraphData *data = graph->data;
+  float totalSum,totalItems,average,distribution;
+  int biggerI,biggerJ,biggerValue,actualValue,*edgeCount,vertexAmount,actualPosI,actualPosJ;
+  vertexAmount = data->matrixLength;
+  edgeCount = calloc(vertexAmount*vertexAmount,sizeof(int));
+
+  do{
+    totalSum=0.0f;
+    totalItems=0;
+    biggerI = biggerJ = biggerValue = -1;
+    printf("\n========================================================");
+    edgeCount = graph->minimalChain(graph,queue,edgeCount,path,visiteds);
+
+    for(int i=0;i<vertexAmount;i++){
+      for(int j=i+1;j<vertexAmount;j++){
+        actualPosI = vertexAmount*i+j;
+        actualPosJ = vertexAmount*j+i;
+
+        actualValue = edgeCount[actualPosI]+edgeCount[actualPosJ];
+        edgeCount[actualPosI]=edgeCount[actualPosJ] = 0;
+
+        if(actualValue>0){
+          if(actualValue>biggerValue){
+            biggerValue = actualValue;
+            biggerI = i;
+            biggerJ = j;
+          }
+          printf("\n- Edge <%d,%d> : %d",i,j,actualValue);
+          totalSum+=actualValue;
+          totalItems++;
+        }
+      }
+    }
+
+    average = totalSum/totalItems;
+    distribution = biggerValue-average;
+    printf("\n\n\n Medidas : ");
+    printf("\n - Média : %f",average);
+    printf("\n - Mais repetido : <%d,%d> -> %dx",biggerI,biggerJ,biggerValue);
+    printf("\n - Distância Superior : %f",distribution);
+    graph->removeEdge(graph,biggerI,biggerJ);
+
+  }while(distribution>variant);
+
+  printf("\n\n Novo Grafo : \n");
+  graph->printAdjacencyMatrix(graph);
+
+}
 
 TGraph *new_graph(int length){
   TGraph *newo = malloc(sizeof(TGraph));
@@ -199,7 +252,9 @@ TGraph *new_graph(int length){
   newo->breadthFirstSearch = f_breadthfirstsearch;
   newo->minimalChain = f_minimalChain;
   newo->printMatrix = f_printMatrix;
+  newo->printAdjacencyMatrix = f_printAdjacencyMatrix;
   newo->dijkstra = f_dijkstra;
+  newo->minimalCandle = f_minimalCandle;
 
   return newo;
 }

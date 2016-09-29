@@ -11,8 +11,12 @@ Licence : MIT
 int main(int argc, char **argv){
   int vertexAmount = atoi(argv[1]);
   char ponderated = atoi(argv[2]);
+  int variant = atoi(argv[3]);
+
   int vertex1, vertex2, pound;
-  int *edgeCount;
+  TQueue *queue = new_Queue(100);
+  char *visiteds = malloc(vertexAmount*sizeof(char));
+  int *path = malloc(vertexAmount*sizeof(int));
 
   TGraph *graph = new_graph(vertexAmount);
 
@@ -26,11 +30,6 @@ int main(int argc, char **argv){
     }
   }
 
-  //graph->printMatrix(graph);
-  edgeCount = graph->minimalChain(graph);
-  for(int i=0;i<vertexAmount;i++){
-    for(int j=i+1;j<vertexAmount;j++){
-      printf("\n- Edge <%d,%d> : %d",i,j,edgeCount[vertexAmount*i+j]+edgeCount[vertexAmount*j+i]);
-    }
-  }
+  graph->minimalCandle(graph,queue,path,visiteds,variant);
+
 }
