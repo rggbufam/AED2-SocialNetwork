@@ -16,7 +16,7 @@ typedef struct tgraphData{
 
 static void f_offerEdge(TGraph* graph,int vertex1, int vertex2, int value){
   TGraphData *data = (TGraphData*) graph->data;
-  data->matrix[data->matrixLength * vertex2 + vertex1] =  value;
+  data->matrix[data->matrixLength * vertex1 + vertex2] =  value;
 }
 
 static void f_removeEdge(TGraph* graph, int vertex1, int vertex2){
@@ -26,7 +26,7 @@ static void f_removeEdge(TGraph* graph, int vertex1, int vertex2){
 
 static int f_recoverEdge(TGraph* graph, int vertex1, int vertex2){
   TGraphData *data = (TGraphData*) graph->data;
-  return data->matrix[data->matrixLength * vertex2 + vertex1] ;
+  return data->matrix[data->matrixLength * vertex1 + vertex2] ;
 }
 
 static void f_printMatrix(TGraph* graph){
@@ -119,7 +119,7 @@ static int *f_dijkstra(TGraph *graph, int start, int end){
 
 static int* af_breadthfirstsearch(TGraphData* data, TQueue *pathQueue,char *visiteds,int *path,int start, int end){
   int current;
-
+  //printf("\n BFS from %d to %d",start,end);
   for(int i=0;i<data->matrixLength;i++){
     visiteds[i] = 0;
   }
@@ -134,10 +134,12 @@ static int* af_breadthfirstsearch(TGraphData* data, TQueue *pathQueue,char *visi
     current = pathQueue->popNumber(pathQueue);
 
     if(current == end){
+      //printf("\n\tEnd found");
       return path;
 
     }else{
       for(int i=0;i<data->matrixLength;i++){
+        //printf("\n\t[%d %d]Found %d from %d",data->matrix[data->matrixLength * current + i],visiteds[i],i,current);
         if(data->matrix[data->matrixLength * current + i]? !visiteds[i] : 0){
           pathQueue->offerNumber(pathQueue,i);
           visiteds[i] = 1;
@@ -146,6 +148,7 @@ static int* af_breadthfirstsearch(TGraphData* data, TQueue *pathQueue,char *visi
       }
     }
   }
+
   return NULL;
 }
 
@@ -171,8 +174,8 @@ static int* f_minimalChain(TGraph *graph,TQueue *queue,int* edgeCount,int* path,
     for(int j=i+1;j<data->matrixLength;j++){
       gotPath = af_breadthfirstsearch(data,queue,visiteds,path,i,j);
       queue->clear(queue);
+      //printf("\n Minimal path from %d to %d : ",i,j);
       if(gotPath){
-        //printf("\n Minimal path from %d to %d : ",i,j);
         currentVertex = j;
         while(currentVertex != i){
           currentPath =  gotPath[currentVertex];
@@ -207,7 +210,7 @@ static void af_conexComponents(TGraphData* data, TQueue *pathQueue,char *visited
 
   current = af_getFirstUnvisited(data, visiteds);
   visiteds[current] = 1;
-  printf("\nSource Target Neighbourhood Color");
+  printf("\n\nSource Target Neighbourhood Color");
 
   while(current!=-1){
     pathQueue->offerNumber(pathQueue,current);
