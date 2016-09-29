@@ -117,8 +117,7 @@ static int *f_dijkstra(TGraph *graph, int start, int end){
   return path;
 }
 
-static int* af_breadthfirstsearch(TGraph* graph, TQueue *pathQueue,char *visiteds,int *path,int start, int end){
-  TGraphData* data = graph->data;
+static int* af_breadthfirstsearch(TGraphData* data, TQueue *pathQueue,char *visiteds,int *path,int start, int end){
   int current;
 
   for(int i=0;i<data->matrixLength;i++){
@@ -156,7 +155,7 @@ static int *f_breadthfirstsearch(TGraph *graph, int start, int end){
   int *path = malloc(data->matrixLength*sizeof(int));
   int *field;
 
-  field = af_breadthfirstsearch(graph, new_Queue(10),visiteds, path, start, end);
+  field = af_breadthfirstsearch(data, new_Queue(10),visiteds, path, start, end);
 
   free(visiteds);
 
@@ -170,7 +169,7 @@ static int* f_minimalChain(TGraph *graph,TQueue *queue,int* edgeCount,int* path,
 
   for(int i=0;i<data->matrixLength;i++){
     for(int j=i+1;j<data->matrixLength;j++){
-      gotPath = af_breadthfirstsearch(graph,queue,visiteds,path,i,j);
+      gotPath = af_breadthfirstsearch(data,queue,visiteds,path,i,j);
       queue->clear(queue);
       if(gotPath){
         //printf("\n Minimal path from %d to %d : ",i,j);
@@ -186,6 +185,47 @@ static int* f_minimalChain(TGraph *graph,TQueue *queue,int* edgeCount,int* path,
     }
   }
   return edgeCount;
+}
+
+static int af_getFirstUnvisited(TGraphData* data,char *visiteds){
+
+  for(int i=0;i<data->matrixLength;i++){
+    if(!visiteds[i]) return i;
+  }
+
+  return -1;
+}
+
+static void af_conexComponents(TGraphData* data, TQueue *pathQueue,char *visiteds){
+  int current = 0;
+
+  for(int i=0;i<data->matrixLength;i++){
+    visiteds[i] = 0;
+  }
+
+  pathQueue->clear(pathQueue);
+
+  current = af_getFirstUnvisited(data, visiteds);
+  visiteds[current] = 1;
+  printf("\nSource Target Neighbourhood Color");
+
+  while(current!=-1){
+    pathQueue->offerNumber(pathQueue,current);
+
+    while(!pathQueue->empty(pathQueue)){
+      current = pathQueue->popNumber(pathQueue);
+
+      for(int i=0;i<data->matrixLength;i++){
+        if(data->matrix[data->matrixLength * current + i]? !visiteds[i] : 0){
+          printf("\n%d %d NH_%d",current,i,current);
+          pathQueue->offerNumber(pathQueue,i);
+          visiteds[i] = 1;
+        }
+      }
+    }
+    current = af_getFirstUnvisited(data, visiteds);
+    visiteds[current] = 1;
+  }
 }
 
 static void f_minimalCandle(TGraph *graph, TQueue *queue, int *path,char *visiteds,int variant){
@@ -233,8 +273,10 @@ static void f_minimalCandle(TGraph *graph, TQueue *queue, int *path,char *visite
 
   }while(distribution>variant);
 
-  printf("\n\n Novo Grafo : \n");
-  graph->printAdjacencyMatrix(graph);
+  //printf("\n\n Novo Grafo : \n");
+  //graph->printAdjacencyMatrix(graph);
+
+  af_conexComponents(data, queue, visiteds);
 
 }
 
