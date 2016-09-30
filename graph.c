@@ -235,6 +235,9 @@ static int* af_dijkstra(TGraphData* data, int* magnitude, int* path, char*visite
           }
         }
       }
+      
+      printf("\n");
+      
       current = af_getFirstUnvisited(data, visiteds);
       visiteds[current] = 1;
     }
