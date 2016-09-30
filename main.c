@@ -31,5 +31,8 @@ int main(int argc, char **argv){
   }
 
   graph->minimalCandle(graph,queue,path,visiteds,variant);
+//  if(graph->dijkstra(graph,1g,2)){
+//    printf("\n\nCaminho Encontrado!");
+//  }
 
 }

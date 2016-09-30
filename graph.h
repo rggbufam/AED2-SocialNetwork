@@ -13,12 +13,11 @@ typedef struct tgraph TGraph;
 typedef void(*FOfferEdge)(TGraph*,int,int,int);
 typedef void(*FRemoveEdge)(TGraph*,int,int);
 typedef int(*FRecoverEdge)(TGraph*,int,int);
-typedef int*(*FMininamChain)(TGraph*,TQueue*,int*,int*,char*);
 typedef int*(*FBreadthFirstSearch)(TGraph*,int,int);
 typedef int*(*FDijkstra)(TGraph*,int,int);
 typedef void(*FPrintMatrix)(TGraph*);
 typedef void(*FPrintAdjacencyMatrix)(TGraph*);
-typedef void(*FMinimalCandle)(TGraph*, TQueue*, int*,char*,int);
+typedef void(*FMinimalCandle)(TGraph*, TQueue*,int*,char*,int);
 
 typedef struct tgraph{
   void* data;
@@ -29,7 +28,6 @@ typedef struct tgraph{
   FPrintAdjacencyMatrix printAdjacencyMatrix;
   FBreadthFirstSearch breadthFirstSearch;
   FDijkstra dijkstra;
-  FMininamChain minimalChain;
   FMinimalCandle minimalCandle;
 }TGraph;
 

@@ -16,7 +16,7 @@ typedef struct tgraphData{
 
 static void f_offerEdge(TGraph* graph,int vertex1, int vertex2, int value){
   TGraphData *data = (TGraphData*) graph->data;
-  data->matrix[data->matrixLength * vertex1 + vertex2] =  value;
+  data->matrix[data->matrixLength * vertex2 + vertex1] = data->matrix[data->matrixLength * vertex1 + vertex2] =  value;
 }
 
 static void f_removeEdge(TGraph* graph, int vertex1, int vertex2){
@@ -48,73 +48,6 @@ static void f_printAdjacencyMatrix(TGraph* graph){
       }
     }
   }
-}
-
-static int af_getMinorMagnitude(TGraph* graph, int* magnitude, char* visiteds){
-  TGraphData* data = graph->data;
-  int minor = -1;
-
-  for(int i=0;i<data->matrixLength;i++){
-    if(magnitude[i] >= 0 && !visiteds[i] && (minor >=0? magnitude[i] < magnitude[minor]: 1)){
-      minor = i;
-    }
-  }
-  return minor;
-}
-
-static int* af_dijkstra(TGraph* graph, int *magnitude, char *visiteds,int *path,int start, int end){
-  TGraphData* data = graph->data;
-
-  int current,currentMagnitude;
-
-  for(int i=0;i<data->matrixLength;i++){
-    visiteds[i] = 0;
-    path[i] = -1;
-    magnitude[i] = INT_MAX;
-  }
-
-  visiteds[start] = 1;
-  magnitude[start] = 0;
-
-  current = start;
-
-  while(current>=0){
-    visiteds[current] = 1;
-    if(current == end){
-      return path;
-    }else{
-
-      for(int i=0;i<data->matrixLength;i++){
-        currentMagnitude = f_recoverEdge(graph, current, i);
-
-        if(currentMagnitude != 0 && !visiteds[i]){
-          currentMagnitude+=magnitude[current];
-          if(currentMagnitude < magnitude[i]){
-            magnitude[i] = currentMagnitude;
-            path[i] = current;
-          }
-        }
-      }
-    }
-    current = af_getMinorMagnitude(graph, magnitude, visiteds);
-  }
-
-  return NULL;
-}
-
-static int *f_dijkstra(TGraph *graph, int start, int end){
-
-  TGraphData* data = graph->data;
-  char *visiteds = malloc(data->matrixLength*sizeof(char));
-  int *magnitude = malloc(data->matrixLength*sizeof(int));
-  int *path = malloc(data->matrixLength*sizeof(int));
-
-  af_dijkstra(graph, magnitude,visiteds, path, start, end);
-
-  free(magnitude);
-  free(visiteds);
-
-  return path;
 }
 
 static int* af_breadthfirstsearch(TGraphData* data, TQueue *pathQueue,char *visiteds,int *path,int start, int end){
@@ -165,141 +98,215 @@ static int *f_breadthfirstsearch(TGraph *graph, int start, int end){
   return field;
 }
 
-static int* f_minimalChain(TGraph *graph,TQueue *queue,int* edgeCount,int* path, char* visiteds){
-  TGraphData *data = graph->data;
-  int *gotPath;
-  int currentVertex, currentPath;
+static int* af_dijkstra(TGraphData* data, int* magnitude, int* path, char*visiteds,int start, int end){
+  int current;
+  int minimalValue,minimalPosition;
+  int currentMagnitude;
 
+  //printf("\n - Dijkstra from [%d] to [%d]",start,end);
   for(int i=0;i<data->matrixLength;i++){
-    for(int j=i+1;j<data->matrixLength;j++){
-      gotPath = af_breadthfirstsearch(data,queue,visiteds,path,i,j);
-      queue->clear(queue);
-      //printf("\n Minimal path from %d to %d : ",i,j);
-      if(gotPath){
-        currentVertex = j;
-        while(currentVertex != i){
-          currentPath =  gotPath[currentVertex];
-          edgeCount[data->matrixLength*currentVertex + currentPath]++;
-          //printf("[%d]",currentVertex);
-          currentVertex = currentPath;
-        }
-        //printf("[%d]",currentVertex);
-      }
-    }
-  }
-  return edgeCount;
-}
-
-static int af_getFirstUnvisited(TGraphData* data,char *visiteds){
-
-  for(int i=0;i<data->matrixLength;i++){
-    if(!visiteds[i]) return i;
-  }
-
-  return -1;
-}
-
-static void af_conexComponents(TGraphData* data, TQueue *pathQueue,char *visiteds){
-  int current = 0;
-
-  for(int i=0;i<data->matrixLength;i++){
+    magnitude[i] = INT_MAX;
     visiteds[i] = 0;
   }
 
-  pathQueue->clear(pathQueue);
+  path[start] = path[end] = -1;
+  magnitude[start] = 0;
 
-  current = af_getFirstUnvisited(data, visiteds);
-  visiteds[current] = 1;
-  printf("\n\nSource Target Neighbourhood Color");
+  current = start;
 
-  while(current!=-1){
-    pathQueue->offerNumber(pathQueue,current);
+  while(current != -1){
 
-    while(!pathQueue->empty(pathQueue)){
-      current = pathQueue->popNumber(pathQueue);
+    visiteds[current] = 1;
+
+    if(current == end){
+      return path;
+    }else{
 
       for(int i=0;i<data->matrixLength;i++){
-        if(data->matrix[data->matrixLength * current + i]? !visiteds[i] : 0){
-          printf("\n%d %d NH_%d",current,i,current);
-          pathQueue->offerNumber(pathQueue,i);
-          visiteds[i] = 1;
+        currentMagnitude = data->matrix[data->matrixLength * current + i];
+        if(currentMagnitude){
+          //printf("\n\t - Encontrado [%d] a partir de [%d]",i,current);
+          if(!visiteds[i]){
+            currentMagnitude+= magnitude[current];
+            if(magnitude[i] > currentMagnitude){
+              //  printf(" e a magnitude foi trocada de %d para %d",magnitude[i],currentMagnitude);
+              magnitude[i] = currentMagnitude;
+              path[i] = current;
+            }
+          }//else{
+            //        printf("(visitado)");
+            //  }
+          }
+        }
+      }
+
+      minimalValue = INT_MAX;
+      minimalPosition = -1;
+
+      for(int i=0;i<data->matrixLength;i++){
+        if(magnitude[i] < minimalValue && !visiteds[i]){
+          minimalValue = magnitude[i];
+          minimalPosition = i;
+        }
+      }
+      //  printf("\n\t - Mínimo = %d",minimalPosition);
+      current = minimalPosition;
+    }
+    return NULL;
+
+  }
+
+  static int* f_dijkstra(TGraph* graph, int start, int end){
+    TGraphData* data = graph->data;
+    int *magnitude = malloc(sizeof(int) * data->matrixLength);
+    int *path = malloc(sizeof(int) * data->matrixLength);
+    char *visiteds = malloc(sizeof(char) * data->matrixLength);
+    int* retur = af_dijkstra(data, magnitude, path, visiteds, start, end);
+    free(magnitude);
+    free(visiteds);
+
+    return retur;
+
+  }
+
+  static int* af_minimalChain(TGraph *graph,TQueue *queue,int *magnitude,int* edgeCount,int* path, char* visiteds){
+    TGraphData *data = graph->data;
+    int *gotPath;
+    int currentVertex, currentPath;
+
+    for(int i=0;i<data->matrixLength;i++){
+      for(int j=i+1;j<data->matrixLength;j++){
+        gotPath = af_breadthfirstsearch(data,queue,visiteds,path,i,j);
+        //gotPath  = af_dijkstra(data, magnitude, path,visiteds, i, j);
+        queue->clear(queue);
+        //printf("\n Minimal path from %d to %d : ",i,j);
+        if(gotPath){
+          currentVertex = j;
+          while(currentVertex != i){
+            currentPath =  gotPath[currentVertex];
+            edgeCount[data->matrixLength*currentVertex + currentPath]++;
+            //printf("[%d]",currentVertex);
+            currentVertex = currentPath;
+          }
+          //printf("[%d]",currentVertex);
         }
       }
     }
+    return edgeCount;
+  }
+
+  static int af_getFirstUnvisited(TGraphData* data,char *visiteds){
+
+    for(int i=0;i<data->matrixLength;i++){
+      if(!visiteds[i]) return i;
+    }
+
+    return -1;
+  }
+
+  static void af_conexComponents(TGraphData* data, TQueue *pathQueue,char *visiteds){
+    int current = 0;
+
+    for(int i=0;i<data->matrixLength;i++){
+      visiteds[i] = 0;
+    }
+
+    pathQueue->clear(pathQueue);
+
     current = af_getFirstUnvisited(data, visiteds);
     visiteds[current] = 1;
-  }
-}
+    printf("\n\nSource Target Neighbourhood");
 
-static void f_minimalCandle(TGraph *graph, TQueue *queue, int *path,char *visiteds,int variant){
-  TGraphData *data = graph->data;
-  float totalSum,totalItems,average,distribution;
-  int biggerI,biggerJ,biggerValue,actualValue,*edgeCount,vertexAmount,actualPosI,actualPosJ;
-  vertexAmount = data->matrixLength;
-  edgeCount = calloc(vertexAmount*vertexAmount,sizeof(int));
+    while(current!=-1){
+      pathQueue->offerNumber(pathQueue,current);
 
-  do{
-    totalSum=0.0f;
-    totalItems=0;
-    biggerI = biggerJ = biggerValue = -1;
-    printf("\n========================================================");
-    edgeCount = graph->minimalChain(graph,queue,edgeCount,path,visiteds);
+      while(!pathQueue->empty(pathQueue)){
+        current = pathQueue->popNumber(pathQueue);
 
-    for(int i=0;i<vertexAmount;i++){
-      for(int j=i+1;j<vertexAmount;j++){
-        actualPosI = vertexAmount*i+j;
-        actualPosJ = vertexAmount*j+i;
-
-        actualValue = edgeCount[actualPosI]+edgeCount[actualPosJ];
-        edgeCount[actualPosI]=edgeCount[actualPosJ] = 0;
-
-        if(actualValue>0){
-          if(actualValue>biggerValue){
-            biggerValue = actualValue;
-            biggerI = i;
-            biggerJ = j;
+        for(int i=0;i<data->matrixLength;i++){
+          if(data->matrix[data->matrixLength * current + i]){
+            if(current != i){
+              printf("\n%d %d NH_%d",current,i,current);
+            }
+            if(!visiteds[i]){
+              pathQueue->offerNumber(pathQueue,i);
+              visiteds[i] = 1;
+            }
           }
-          printf("\n- Edge <%d,%d> : %d",i,j,actualValue);
-          totalSum+=actualValue;
-          totalItems++;
         }
       }
+      current = af_getFirstUnvisited(data, visiteds);
+      visiteds[current] = 1;
     }
+  }
 
-    average = totalSum/totalItems;
-    distribution = biggerValue-average;
-    printf("\n\n\n Medidas : ");
-    printf("\n - Média : %f",average);
-    printf("\n - Mais repetido : <%d,%d> -> %dx",biggerI,biggerJ,biggerValue);
-    printf("\n - Distância Superior : %f",distribution);
-    graph->removeEdge(graph,biggerI,biggerJ);
+  static void f_minimalCandle(TGraph *graph, TQueue *queue,int *path,char *visiteds,int variant){
+    TGraphData *data = graph->data;
+    float totalSum,totalItems,average,distribution;
+    int biggerI,biggerJ,biggerValue,actualValue,*edgeCount,vertexAmount,actualPosI,actualPosJ;
+    int *magnitude = malloc(data->matrixLength*sizeof(int));
 
-  }while(distribution>variant);
+    vertexAmount = data->matrixLength;
+    edgeCount = calloc(vertexAmount*vertexAmount,sizeof(int));
 
-  //printf("\n\n Novo Grafo : \n");
-  //graph->printAdjacencyMatrix(graph);
+    do{
+      totalSum=0.0f;
+      totalItems=0;
+      biggerI = biggerJ = biggerValue = -1;
+      printf("\n========================================================");
+      edgeCount = af_minimalChain(graph,queue,magnitude,edgeCount,path,visiteds);
 
-  af_conexComponents(data, queue, visiteds);
+      for(int i=0;i<vertexAmount;i++){
+        for(int j=i+1;j<vertexAmount;j++){
+          actualPosI = vertexAmount*i+j;
+          actualPosJ = vertexAmount*j+i;
 
-}
+          actualValue = edgeCount[actualPosI]+edgeCount[actualPosJ];
+          edgeCount[actualPosI]=edgeCount[actualPosJ] = 0;
 
-TGraph *new_graph(int length){
-  TGraph *newo = malloc(sizeof(TGraph));
-  TGraphData *newoData = malloc(sizeof(TGraphData));
+          if(actualValue>0){
+            if(actualValue>biggerValue){
+              biggerValue = actualValue;
+              biggerI = i;
+              biggerJ = j;
+            }
+            printf("\n- Edge <%d,%d> : %d",i,j,actualValue);
+            totalSum+=actualValue;
+            totalItems++;
+          }
+        }
+      }
 
-  newoData->matrix = calloc(length*length,sizeof(int));
-  newoData->matrixLength = length;
-  newo->data = newoData;
+      average = totalSum/totalItems;
+      distribution = biggerValue-average;
+      printf("\n\n\n Medidas : ");
+      printf("\n - Média : %f",average);
+      printf("\n - Mais repetido : <%d,%d> -> %dx",biggerI,biggerJ,biggerValue);
+      printf("\n - Distância Superior : %f",distribution);
+      graph->removeEdge(graph,biggerI,biggerJ);
 
-  newo->offerEdge = f_offerEdge;
-  newo->recoverEdge = f_recoverEdge;
-  newo->removeEdge = f_removeEdge;
-  newo->breadthFirstSearch = f_breadthfirstsearch;
-  newo->minimalChain = f_minimalChain;
-  newo->printMatrix = f_printMatrix;
-  newo->printAdjacencyMatrix = f_printAdjacencyMatrix;
-  newo->dijkstra = f_dijkstra;
-  newo->minimalCandle = f_minimalCandle;
+    }while(distribution>variant);
 
-  return newo;
-}
+    af_conexComponents(data, queue, visiteds);
+
+  }
+
+  TGraph *new_graph(int length){
+    TGraph *newo = malloc(sizeof(TGraph));
+    TGraphData *newoData = malloc(sizeof(TGraphData));
+
+    newoData->matrix = calloc(length*length,sizeof(int));
+    newoData->matrixLength = length;
+    newo->data = newoData;
+
+    newo->offerEdge = f_offerEdge;
+    newo->recoverEdge = f_recoverEdge;
+    newo->removeEdge = f_removeEdge;
+    newo->breadthFirstSearch = f_breadthfirstsearch;
+    newo->printMatrix = f_printMatrix;
+    newo->printAdjacencyMatrix = f_printAdjacencyMatrix;
+    newo->dijkstra = f_dijkstra;
+    newo->minimalCandle = f_minimalCandle;
+
+    return newo;
+  }
