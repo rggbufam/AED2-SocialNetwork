@@ -1,0 +1,47 @@
+
+========================================================
+- Edge <0,1> : 11
+- Edge <0,7> : 6
+- Edge <1,2> : 10
+- Edge <1,4> : 8
+- Edge <2,3> : 8
+- Edge <2,7> : 7
+- Edge <2,9> : 10
+- Edge <3,5> : 5
+- Edge <4,5> : 5
+- Edge <5,6> : 5
+- Edge <6,9> : 8
+- Edge <7,8> : 6
+- Edge <8,9> : 3
+
+
+ Medidas : 
+ - Média : 7.076923
+ - Mais repetido : <0,1> -> 11x
+ - Distância Superior : 3.923077
+
+Source Target Neighbourhood
+0 7 NH_0
+7 0 NH_7
+7 2 NH_7
+7 8 NH_7
+2 1 NH_2
+2 3 NH_2
+2 7 NH_2
+2 9 NH_2
+8 7 NH_8
+8 9 NH_8
+1 2 NH_1
+1 4 NH_1
+3 2 NH_3
+3 5 NH_3
+9 2 NH_9
+9 6 NH_9
+9 8 NH_9
+4 1 NH_4
+4 5 NH_4
+5 3 NH_5
+5 4 NH_5
+5 6 NH_5
+6 5 NH_6
+6 9 NH_6

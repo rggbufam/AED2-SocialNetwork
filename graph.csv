@@ -1,0 +1,25 @@
+Source Target
+0 2 NH_0
+2 0 NH_2
+2 5 NH_2
+2 6 NH_2
+5 2 NH_5
+5 4 NH_5
+5 6 NH_5
+5 7 NH_5
+6 2 NH_6
+6 5 NH_6
+6 9 NH_6
+4 1 NH_4
+4 5 NH_4
+4 9 NH_4
+7 5 NH_7
+7 8 NH_7
+9 4 NH_9
+9 6 NH_9
+1 3 NH_1
+1 4 NH_1
+1 8 NH_1
+8 1 NH_8
+8 7 NH_8
+3 1 NH_3
